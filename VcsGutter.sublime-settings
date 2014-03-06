@@ -17,6 +17,7 @@
         "diff": "diff",
         "git": "git",
         "hg": "hg",
-        "svn": "svn"
+        "svn": "svn",
+        "p4": "p4"
     }
 }

@@ -212,3 +212,18 @@ class SvnGutterHandler(VcsGutterHandler):
             os.path.join(self.vcs_tree, self.vcs_path),
         ]
         return args
+
+
+class PerforceGutterHandler(VcsGutterHandler):
+
+    def get_vcs_helper(self):
+        return vcs_helpers.PerforceHelper()
+
+    def get_diff_args(self):
+        args = [
+            self.exc_path,
+            '-d', self.vcs_tree,
+            'print',
+            os.path.join(self.vcs_tree, self.vcs_path),
+        ]
+        return args

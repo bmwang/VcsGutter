@@ -1,6 +1,8 @@
 import os
 
 import sublime
+import subprocess
+import re
 
 
 class VcsHelper(object):
@@ -83,3 +85,34 @@ class SvnHelper(VcsHelper):
     @classmethod
     def is_svn_repository(cls, view):
         return cls.is_repository(view)
+
+
+class PerforceHelper(VcsHelper):
+    # We need this to call p4 to find the root dir
+    p4bin = 'p4'
+
+    @classmethod
+    def meta_data_directory(cls):
+        return ''
+
+    @classmethod
+    def vcs_root(cls, directory):
+        # This is not great...
+        # TODO: find a better way to find the root p4 dir
+        info, err = subprocess.Popen([
+            cls.p4bin,
+            '-d', directory,
+            'info'], stdout=subprocess.PIPE).communicate()
+        match = re.search(r'\nClient root: ([^\n]+)', info.decode('utf-8'))
+        if match is None:
+            return False
+        return match.group(1)
+
+    @classmethod
+    def is_p4_repository(cls, view):
+        if view is None or view.file_name() is None:
+            return False
+
+        cur_dir = os.path.abspath(view.file_name())
+        rt = os.path.abspath(cls.vcs_root(cur_dir))
+        return len(os.path.commonprefix([rt, cur_dir])) >= len(rt)

@@ -4,9 +4,9 @@ import time
 import sublime
 
 try:
-    from .vcs_helpers import GitHelper, HgHelper, SvnHelper
+    from .vcs_helpers import GitHelper, HgHelper, SvnHelper, PerforceHelper
 except ValueError:
-    from vcs_helpers import GitHelper, HgHelper, SvnHelper
+    from vcs_helpers import GitHelper, HgHelper, SvnHelper, PerforceHelper
 
 
 class ViewCollection:
@@ -18,16 +18,20 @@ class ViewCollection:
     @staticmethod
     def add(view):
         try:
-            from .gutter_handlers import GitGutterHandler, HgGutterHandler, SvnGutterHandler
+            from .gutter_handlers import GitGutterHandler, HgGutterHandler, \
+                SvnGutterHandler, PerforceGutterHandler
         except ValueError:
-            from gutter_handlers import GitGutterHandler, HgGutterHandler, SvnGutterHandler
+            from gutter_handlers import GitGutterHandler, HgGutterHandler, \
+                SvnGutterHandler, PerforceGutterHandler
 
         settings = sublime.load_settings('VcsGutter.sublime-settings')
         vcs_paths = settings.get('vcs_paths', {
             'git': 'git',
             'hg': 'hg',
-            'svn': 'svn'
+            'svn': 'svn',
+            'p4': 'p4',
         })
+        PerforceHelper.p4bin = vcs_paths['p4']
 
         key = None
         if GitHelper.is_git_repository(view):
@@ -38,7 +42,10 @@ class ViewCollection:
             klass = HgGutterHandler
         elif SvnHelper.is_svn_repository(view):
             key = 'svn'
-            klass = SvnGutterHandler
+            klass = SvnGutterHandle
+        elif PerforceHelper.is_p4_repository(view):
+            key = 'p4'
+            klass = PerforceGutterHandler
 
         handler = None
         if key is not None:
