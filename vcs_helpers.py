@@ -90,6 +90,8 @@ class SvnHelper(VcsHelper):
 class PerforceHelper(VcsHelper):
     # We need this to call p4 to find the root dir
     p4bin = 'p4'
+    # Cache so that things arent -too- slow
+    vcs_root_cache = {}
 
     @classmethod
     def meta_data_directory(cls):
@@ -97,6 +99,9 @@ class PerforceHelper(VcsHelper):
 
     @classmethod
     def vcs_root(cls, directory):
+        if directory in cls.vcs_root_cache:
+            return cls.vcs_root_cache[directory]
+
         # This is not great...
         # TODO: find a better way to find the root p4 dir
         info, err = subprocess.Popen([
@@ -105,7 +110,9 @@ class PerforceHelper(VcsHelper):
             'info'], stdout=subprocess.PIPE).communicate()
         match = re.search(r'\nClient root: ([^\n]+)', info.decode('utf-8'))
         if match is None:
+            cls.vcs_root_cache[directory] = False
             return False
+        cls.vcs_root_cache[directory] = match.group(1)
         return match.group(1)
 
     @classmethod
