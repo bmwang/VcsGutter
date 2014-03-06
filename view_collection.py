@@ -34,16 +34,16 @@ class ViewCollection:
         PerforceHelper.p4bin = vcs_paths['p4']
 
         key = None
-        if GitHelper.is_git_repository(view):
+        if vcs_paths['git'] and GitHelper.is_git_repository(view):
             key = 'git'
             klass = GitGutterHandler
-        elif HgHelper.is_hg_repository(view):
+        elif vcs_paths['hg'] and HgHelper.is_hg_repository(view):
             key = 'hg'
             klass = HgGutterHandler
-        elif SvnHelper.is_svn_repository(view):
+        elif vcs_paths['svn'] and SvnHelper.is_svn_repository(view):
             key = 'svn'
             klass = SvnGutterHandle
-        elif PerforceHelper.is_p4_repository(view):
+        elif vcs_paths['p4'] and PerforceHelper.is_p4_repository(view):
             key = 'p4'
             klass = PerforceGutterHandler
 
